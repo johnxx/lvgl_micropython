@@ -85,5 +85,5 @@ class ST77916(display_driver_framework.DisplayDriver):
 
     def set_params(self, cmd, params=None):
         cmd = self.__cmd_modifier(cmd)
-        print("Sending cmd {:02X} with params {:02X}".format(cmd, params[0]))
+        print("Sending cmd 0x{:08X} with params 0x{:02X}".format(cmd, params[0]))
         self._data_bus.tx_param(cmd, params)
