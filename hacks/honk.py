@@ -1,23 +1,34 @@
+import time
+import machine
 import lcd_bus
 from micropython import const
-from machine import I2C, Pin, SPI
-# from nxp_periph.GPIO import PCA9554
 
-# Boot up the IO Expander
-# io_exp_i2c = I2C(0, scl=Pin(15), sda=Pin(16), freq=100000)
-# io_exp = PCA9554(io_exp_i2c, 0x40)
-# io_exp.config([0xFF])
+from i2c import I2C
+i2c_bus = I2C.Bus(0, scl=10, sda=11, freq=100_000)
+io_exp_i2c = I2C.Device(i2c_bus, 0x20)
+import io_expander_framework
+import tca9554
+# tca9554._INPUT_PORT_REG = const(0x00)
+# tca9554._OUTPUT_PORT_REG = const(0x01)
+# tca9554._POLARITY_INVERSION_REG = const(0x02)
+# tca9554._CONFIGURATION_REG = const(0x03)
 
+io_expander_framework.Pin.set_device(io_exp_i2c)
+ex2 = tca9554.Pin(tca9554.EXIO2, mode=io_expander_framework.Pin.OUT, pull=io_expander_framework.Pin.PULL_DOWN, value=1)
+ex2.value(0)
+time.sleep_ms(10)
+ex2.value(1)
+time.sleep_ms(50)
 
 # LCD parameters
-_WIDTH = const(320)
-_HEIGHT = const(320)
+_WIDTH = const(360)
+_HEIGHT = const(360)
 _DEPTH = const(16)
 
 # LCD SPI Bus
 # Using 
 _HOST = const(1)
-_FREQ = const(80 * 1000 * 1000)
+_FREQ = const(5 * 1000 * 1000)
 _SCK = const(40)
 _CS = const(21)
 _DC = const(0)
@@ -31,7 +42,7 @@ _BACKLIGHT = const(5)
 _RESET = const(0)
 _TEAR = const(24)
 
-lcd_spi_bus = SPI.Bus(
+lcd_spi_bus = machine.SPI.Bus(
     host=_HOST,
     mosi=_SDA0,
     miso=_SDA1,
@@ -70,14 +81,16 @@ import lvgl as lv
 
 display = st77916.ST77916(
     data_bus=display_bus,
-    display_width=320,
-    display_height=320,
+    display_width=_WIDTH,
+    display_height=_HEIGHT,
     backlight_pin=_BACKLIGHT,
     reset_pin=_RESET,
     color_space=lv.COLOR_FORMAT.RGB565,
+    color_byte_order=st77916.BYTE_ORDER_RGB,
+    rgb565_byte_swap=True,
 )
 
-display.set_power(True)
+display.set_power(False)
 display.init()
 display.set_backlight(100)
 
@@ -87,3 +100,23 @@ th = task_handler.TaskHandler()
 
 scrn = lv.screen_active()
 scrn.set_style_bg_color(lv.color_hex(0x0088AA), 0)
+
+label = lv.label(scrn)
+label.set_text('HELLO WORLD!')
+label.align(lv.ALIGN.CENTER, 0, -50)
+
+lv.screen_load(scrn)
+
+recv_buf = bytearray(8)
+recv_buf[0] = 0x00
+recv_buf[1] = 0x01
+recv_buf[2] = 0x00
+recv_buf[3] = 0x01
+recv_buf[4] = 0x01
+recv_buf[5] = 0x00
+recv_buf[6] = 0x01
+recv_buf[7] = 0x01
+print(recv_buf)
+# I'm just guessing that get_params is supposed to write back to this buffer
+display.get_params(0xDA, recv_buf)
+print(recv_buf)

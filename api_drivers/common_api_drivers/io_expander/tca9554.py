@@ -15,9 +15,9 @@ EXIO8 = io_expander_framework.EXIO8
 
 
 _INPUT_PORT_REG = const(0x00)
-_OUTPUT_PORT_REG = const(0x02)
-_POLARITY_INVERSION_REG = const(0x04)
-_CONFIGURATION_REG = const(0x06)
+_OUTPUT_PORT_REG = const(0x01)
+_POLARITY_INVERSION_REG = const(0x02)
+_CONFIGURATION_REG = const(0x03)
 
 I2C_ADDR = 0x20
 BITS = 8
@@ -47,6 +47,7 @@ class Pin(io_expander_framework.Pin):
     def __write_reg(self, reg, value):
         self._buf[0] = value >> 8 & 0xFF
         self._buf[1] = value & 0xFF
+        print("Writing value {:02X} to {:02X}".format(self._buf[0], reg))
         self._device.write_mem(reg, buf=self._mv)
 
     def _set_dir(self, direction):
