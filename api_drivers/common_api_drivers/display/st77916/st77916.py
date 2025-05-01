@@ -12,6 +12,7 @@ BYTE_ORDER_RGB = display_driver_framework.BYTE_ORDER_RGB
 BYTE_ORDER_BGR = display_driver_framework.BYTE_ORDER_BGR
 
 _WRITE_CMD = const(0x02)
+_READ_CMD = const(0x0B)
 _WRITE_COLOR = const(0x32)
 
 _MADCTL_MV = const(0x20)
@@ -27,6 +28,12 @@ class ST77916(display_driver_framework.DisplayDriver):
         _MADCTL_MY,
         _MADCTL_MV
     )
+
+    @staticmethod
+    def __quad_spi_read_cmd_modifier(cmd):
+        cmd <<= 8
+        cmd |= _READ_CMD << 24
+        return cmd
 
     @staticmethod
     def __quad_spi_cmd_modifier(cmd):
@@ -57,6 +64,7 @@ class ST77916(display_driver_framework.DisplayDriver):
         num_lanes = data_bus.get_lane_count()
 
         self.__cmd_modifier = self.__quad_spi_cmd_modifier
+        self.__read_cmd_modifier = self.__quad_spi_read_cmd_modifier
         _cmd_bits = 32
 
         super().__init__(
@@ -87,3 +95,9 @@ class ST77916(display_driver_framework.DisplayDriver):
         cmd = self.__cmd_modifier(cmd)
         print("Sending cmd 0x{:08X} with params 0x{:02X}".format(cmd, params[0]))
         self._data_bus.tx_param(cmd, params)
+
+
+    def get_params(self, cmd, params):
+        cmd = self.__read_cmd_modifier(cmd)
+        self._data_bus.rx_param(cmd, params)
+        print("Sent cmd 0x{:02X} and got params {}".format(cmd, str(params)))

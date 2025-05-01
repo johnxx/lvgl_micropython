@@ -3,16 +3,16 @@ import machine
 import lcd_bus
 from micropython import const
 
-# from i2c import I2C
-# i2c_bus = I2C.Bus(0, scl=10, sda=11, freq=100_000)
-# io_exp_i2c = I2C.Device(i2c_bus, 0x20)
+from i2c import I2C
+i2c_bus = I2C.Bus(0, scl=10, sda=11, freq=100_000)
+io_exp_i2c = I2C.Device(i2c_bus, 0x20)
 # import io_expander_framework
 # import tca9554
-# # tca9554._INPUT_PORT_REG = const(0x00)
-# # tca9554._OUTPUT_PORT_REG = const(0x01)
-# # tca9554._POLARITY_INVERSION_REG = const(0x02)
-# # tca9554._CONFIGURATION_REG = const(0x03)
-# 
+# tca9554._INPUT_PORT_REG = const(0x00)
+# tca9554._OUTPUT_PORT_REG = const(0x01)
+# tca9554._POLARITY_INVERSION_REG = const(0x02)
+# tca9554._CONFIGURATION_REG = const(0x03)
+
 # io_expander_framework.Pin.set_device(io_exp_i2c)
 # ex2 = tca9554.Pin(tca9554.EXIO2, mode=io_expander_framework.Pin.OUT, pull=io_expander_framework.Pin.PULL_DOWN, value=1)
 # ex2.value(0)
@@ -98,16 +98,17 @@ import task_handler
 
 th = task_handler.TaskHandler()
 
-scrn = lv.screen_active()
-scrn.set_style_bg_color(lv.color_hex(0x0088AA), 0)
-
-label = lv.label(scrn)
-label.set_text('HELLO WORLD!')
-label.align(lv.ALIGN.CENTER, 0, -50)
-
-lv.screen_load(scrn)
+# scrn = lv.screen_active()
+# scrn.set_style_bg_color(lv.color_hex(0x0088AA), 0)
+# 
+# label = lv.label(scrn)
+# label.set_text('HELLO WORLD!')
+# label.align(lv.ALIGN.CENTER, 0, -50)
+# 
+# lv.screen_load(scrn)
 
 recv_buf = bytearray(4)
+recv_buf = bytearray(4)
 print(recv_buf)
-display.get_params(0x0B000400, recv_buf)
-print(recv_buf) # should be 0x007F7F7F
+display.get_params(0x04, recv_buf)
+print(recv_buf)
