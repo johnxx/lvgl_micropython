@@ -211,6 +211,7 @@ param_list = [
     (0xA0, {0x09}, 1, 0),
     (0xF1, {0x10}, 1, 0), # CMD2_xPROT1
     (0xF0, {0x00}, 1, 0), # Return to normal user mode
+    (0x36, {0x08}, 1, 0), # MADCTL, set color order to BGR
 
     (0x2A, {0x00, 0x00, 0x01, 0x67}, 4, 0), # select col 0 through 359
     (0x2B, {0x00, 0x00, 0x01, 0x67}, 4, 0), # select row 0 through 359
