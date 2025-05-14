@@ -153,7 +153,7 @@ class ST77916(display_driver_framework.DisplayDriver):
             color_byte_order,
             color_space,  # NOQA
             # we don't need to sue RGB565 byte swap so we override it
-            rgb565_byte_swap=False,
+            rgb565_byte_swap=rgb565_byte_swap,
             _cmd_bits=_cmd_bits,
             _param_bits=8,
             _init_bus=True
